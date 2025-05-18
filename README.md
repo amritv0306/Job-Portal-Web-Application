@@ -2,8 +2,8 @@
 
 A comprehensive job portal built with Flask and SQLite where users can post job listings, search for jobs, and apply for positions.
 
-![Job Portal Banner](https://via.placeholder.com/800x400?text=Job+Portal)
-
+Live Link: 
+https://job-portal-web-application-1ekb.onrender.com
 ---
 
 ## 👥 User Roles
