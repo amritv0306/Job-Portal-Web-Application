@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Find Jobs - Job Portal{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Find Jobs</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('jobs') }}">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    {{ form.keyword.label(class="form-label") }}
+                    {{ form.keyword(class="form-control", value=request.args.get('keyword', '')) }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    {{ form.location.label(class="form-label") }}
+                    {{ form.location(class="form-control", value=request.args.get('location', '')) }}
+                </div>
+                <div class="col-md-3 mb-3">
+                    {{ form.category.label(class="form-label") }}
+                    {{ form.category(class="form-select", selected=request.args.get('category', '')) }}
+                </div>
+                <div class="col-md-2 mb-3 d-flex align-items-end">
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if jobs.items %}
+    <div class="row">
+        {% for job in jobs.items %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ job.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ job.company }} - {{ job.location }}</h6>
+                    <p class="card-text">{{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}</p>
+                    <p><strong>Category:</strong> {{ job.category }}</p>
+                    <p><strong>Salary:</strong> {{ job.salary or 'Not specified' }}</p>
+                    <p><strong>Posted:</strong> {{ job.posted_date.strftime('%Y-%m-%d') }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-primary">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if jobs.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('jobs', page=jobs.prev_num, keyword=request.args.get('keyword', ''), location=request.args.get('location', ''), category=request.args.get('category', '')) }}">Previous</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+            {% endif %}
+            
+            {% for page_num in jobs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == jobs.page %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('jobs', page=page_num, keyword=request.args.get('keyword', ''), location=request.args.get('location', ''), category=request.args.get('category', '')) }}">{{ page_num }}</a>
+                    </li>
+                    {% endif %}
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if jobs.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('jobs', page=jobs.next_num, keyword=request.args.get('keyword', ''), location=request.args.get('location', ''), category=request.args.get('category', '')) }}">Next</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% else %}
+    <div class="alert alert-info">No jobs found matching your criteria. Try adjusting your search parameters.</div>
+{% endif %}
+{% endblock %}

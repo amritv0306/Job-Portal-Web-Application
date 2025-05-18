@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - Job Portal{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="job-header">
+            <h2>{{ job.title }}</h2>
+            <h5>{{ job.company }} - {{ job.location }}</h5>
+            <p class="text-muted">Posted on {{ job.posted_date.strftime('%B %d, %Y') }}</p>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>Job Description</h4>
+                <p>{{ job.description }}</p>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Details</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>Category:</strong> {{ job.category }}</li>
+                            <li><strong>Location:</strong> {{ job.location }}</li>
+                            <li><strong>Salary:</strong> {{ job.salary or 'Not specified' }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4>Apply for this job</h4>
+            </div>
+            <div class="card-body">
+                {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'job_seeker' %}
+                        {% set applied = current_user.applications|selectattr('job_id', 'equalto', job.id)|list %}
+                        {% if applied %}
+                            <div class="alert alert-info">You have already applied for this job.</div>
+                        {% else %}
+                            <form method="POST" action="{{ url_for('apply_job', job_id=job.id) }}">
+                                {{ form.hidden_tag() }}
+                                <div class="mb-3">
+                                    {{ form.resume.label(class="form-label") }}
+                                    {{ form.resume(class="form-control", rows=6) }}
+                                    <div class="form-text">Paste your resume text or provide a link to your online resume.</div>
+                                </div>
+                                <div class="mb-3">
+                                    {{ form.cover_letter.label(class="form-label") }}
+                                    {{ form.cover_letter(class="form-control", rows=4) }}
+                                </div>
+                                <div class="d-grid">
+                                    {{ form.submit(class="btn btn-primary") }}
+                                </div>
+                            </form>
+                        {% endif %}
+                    {% elif current_user.role == 'employer' %}
+                        <div class="alert alert-warning">Employers cannot apply for jobs.</div>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-warning">
+                        You need to <a href="{{ url_for('login') }}">login</a> to apply for this job.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{{ url_for('jobs') }}" class="btn btn-secondary">Back to Job Listings</a>
+</div>
+{% endblock %}

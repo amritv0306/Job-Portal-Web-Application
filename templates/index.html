@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Find Your Dream Job</h1>
+    <p class="lead">Browse thousands of job listings or post a job opening.</p>
+    <hr class="my-4">
+    <div class="row">
+        <div class="col-md-8">
+            <form action="{{ url_for('jobs') }}" method="get" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="keyword" class="form-control" placeholder="Job title or keyword">
+                    <input type="text" name="location" class="form-control" placeholder="Location">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<h2 class="mb-4">Recent Job Postings</h2>
+
+<div class="row">
+    {% for job in jobs %}
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ job.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ job.company }} - {{ job.location }}</h6>
+                <p class="card-text">{{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}</p>
+                <p><strong>Category:</strong> {{ job.category }}</p>
+                <p><strong>Posted:</strong> {{ job.posted_date.strftime('%Y-%m-%d') }}</p>
+                <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

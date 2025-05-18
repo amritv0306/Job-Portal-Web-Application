@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Applications for {{ job.title }} - Job Portal{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Applications for "{{ job.title }}"</h3>
+        <p class="text-muted">{{ job.company }} - {{ job.location }}</p>
+    </div>
+    <div class="card-body">
+        {% if applications %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Applicant</th>
+                            <th>Applied Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td>{{ application.applicant.username }}</td>
+                            <td>{{ application.applied_date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if application.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif application.status == 'accepted' %}
+                                    <span class="badge bg-success">Accepted</span>
+                                {% elif application.status == 'rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#applicationModal{{ application.id }}">
+                                    View Details
+                                </button>
+                                
+                                {% if application.status == 'pending' %}
+                                <div class="btn-group btn-group-sm">
+                                    <a href="#" class="btn btn-outline-success">Accept</a>
+                                    <a href="#" class="btn btn-outline-danger">Reject</a>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        
+                        <!-- Modal for application details -->
+                        <div class="modal fade" id="applicationModal{{ application.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Application from {{ application.applicant.username }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <h6>Resume/CV</h6>
+                                        <div class="border p-3 mb-3">
+                                            {{ application.resume }}
+                                        </div>
+                                        
+                                        {% if application.cover_letter %}
+                                        <h6>Cover Letter</h6>
+                                        <div class="border p-3">
+                                            {{ application.cover_letter }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        {% if application.status == 'pending' %}
+                                        <a href="#" class="btn btn-success">Accept Application</a>
+                                        <a href="#" class="btn btn-danger">Reject Application</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">No applications received for this job yet.</div>
+        {% endif %}
+    </div>
+    <div class="card-footer">
+        <a href="{{ url_for('profile') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

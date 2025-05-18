@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Job Portal{% endblock %}
+
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary">
+            <div class="card-body">
+                <h5 class="card-title">Total Users</h5>
+                <h2 class="card-text">{{ users|length }}</h2>
+                <a href="#users" class="text-white">View Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success">
+            <div class="card-body">
+                <h5 class="card-title">Total Jobs</h5>
+                <h2 class="card-text">{{ jobs|length }}</h2>
+                <a href="#jobs" class="text-white">View Details</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-info">
+            <div class="card-body">
+                <h5 class="card-title">Total Applications</h5>
+                <h2 class="card-text">{{ applications|length }}</h2>
+                <a href="#applications" class="text-white">View Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4" id="users">
+    <div class="card-header">
+        <h4>User Management</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Joined Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-outline-primary">Edit</a>
+                                <a href="#" class="btn btn-outline-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4" id="jobs">
+    <div class="card-header">
+        <h4>Job Management</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Company</th>
+                        <th>Location</th>
+                        <th>Posted Date</th>
+                        <th>Applications</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <td>{{ job.id }}</td>
+                        <td>{{ job.title }}</td>
+                        <td>{{ job.company }}</td>
+                        <td>{{ job.location }}</td>
+                        <td>{{ job.posted_date.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ job.applications|length }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('job_detail', job_id=job.id) }}" class="btn btn-outline-info">View</a>
+                                <a href="#" class="btn btn-outline-primary">Edit</a>
+                                <a href="#" class="btn btn-outline-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card" id="applications">
+    <div class="card-header">
+        <h4>Application Management</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Job Title</th>
+                        <th>Applicant</th>
+                        <th>Applied Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applications %}
+                    <tr>
+                        <td>{{ application.id }}</td>
+                        <td>{{ application.job.title }}</td>
+                        <td>{{ application.applicant.username }}</td>
+                        <td>{{ application.applied_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if application.status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                            {% elif application.status == 'accepted' %}
+                                <span class="badge bg-success">Accepted</span>
+                            {% elif application.status == 'rejected' %}
+                                <span class="badge bg-danger">Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#appModal{{ application.id }}">View</a>
+                                <a href="#" class="btn btn-outline-success">Accept</a>
+                                <a href="#" class="btn btn-outline-danger">Reject</a>
+                            </div>
+                            
+                            <!-- Modal for application details -->
+                            <div class="modal fade" id="appModal{{ application.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Application Details</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Job:</strong> {{ application.job.title }}</p>
+                                            <p><strong>Applicant:</strong> {{ application.applicant.username }}</p>
+                                            <p><strong>Applied Date:</strong> {{ application.applied_date.strftime('%Y-%m-%d') }}</p>
+                                            <p><strong>Status:</strong> {{ application.status }}</p>
+                                            <h6>Resume/CV</h6>
+                                            <div class="border p-3 mb-3">
+                                                {{ application.resume }}
+                                            </div>
+                                            
+                                            {% if application.cover_letter %}
+                                            <h6>Cover Letter</h6>
+                                            <div class="border p-3">
+                                                {{ application.cover_letter }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
